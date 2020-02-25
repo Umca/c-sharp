@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Sockets
 {
@@ -10,7 +10,17 @@ namespace Sockets
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Here will be socket opened!!!");
+            int port = 8005;
+            string host = "127.0.0.1";
+            SocketServer server = new SocketServer(port, host);
+            ClientServer client = new ClientServer(port, host);
+
+            Thread serverTh = new Thread(new ThreadStart(server.Start));
+            Thread clientTh = new Thread(new ThreadStart(client.Start));
+
+            serverTh.Start();
+            Thread.Sleep(2000);
+            clientTh.Start();
         }
     }
 }
