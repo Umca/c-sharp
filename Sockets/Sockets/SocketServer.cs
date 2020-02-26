@@ -36,12 +36,12 @@ namespace Sockets
         }
         void Run()
         {
+            Socket handler = m_listenSocket.Accept();
             while (true)
             {
-                Socket handler = m_listenSocket.Accept();
                 StringBuilder builder = new StringBuilder();
                 int bytes = 0;
-                byte[] data = new byte[256];
+                byte[] data = new byte[1024];
 
                 do
                 {
@@ -49,13 +49,12 @@ namespace Sockets
                     builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
                 }
                 while (handler.Available > 0);
-                SendMsg(builder.ToString());
+                SendMsg("Server received new message.");
 
-                string msg = "Random message from server.";
+                string msg = builder.ToString() + " server mark";
                 data = Encoding.Unicode.GetBytes(msg);
                 handler.Send(data);
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
+                SendMsg("Server sent message. ");
             }
         }
         void SendMsg(string msg)

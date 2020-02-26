@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using System.IO;
 
 namespace Sockets
 {
@@ -29,19 +30,15 @@ namespace Sockets
             {
                 m_socket.Connect(m_ipPoint);
                 SendMsg("Client launched.");
-                string message = "Random message from client.";
-                byte[] data = Encoding.Unicode.GetBytes(message);
-                m_socket.Send(data);
-
-                data = new byte[256];
-                StringBuilder builder = new StringBuilder();
-                int bytes = 0;
-                do
-                {
-                    bytes = m_socket.Receive(data, data.Length, 0);
-                    builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
-                } while (m_socket.Available > 0);
-                SendMsg("Response from server: " + builder.ToString());
+                ReadFile();
+            }
+            catch(SocketException err)
+            {
+                Console.WriteLine(err);
+            }
+            catch(IOException err)
+            {
+                Console.WriteLine(err);
             }
             catch (Exception err)
             {
@@ -51,6 +48,38 @@ namespace Sockets
         void SendMsg(string msg)
         {
             Console.WriteLine("{0} : {1}", DateTime.Now.ToShortTimeString(), msg);
+        }
+
+        void ReadFile()
+        {
+            const Int32 BufferSize = 1024;
+            using(var fileStream = File.OpenRead("data.txt"))
+                using (var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, BufferSize))
+                {
+                    String line;
+                    while((line = streamReader.ReadLine()) != null)
+                    {
+                        ReceiveSendSocket(line);
+                    }
+                    m_socket.Shutdown(SocketShutdown.Both);
+                    m_socket.Close();
+            }
+        }
+
+        void ReceiveSendSocket(string line)
+        {
+            byte[] data = Encoding.Unicode.GetBytes(line);
+            m_socket.Send(data);
+
+            data = new byte[256];
+            StringBuilder builder = new StringBuilder();
+            int bytes = 0;
+            do
+            {
+                bytes = m_socket.Receive(data, data.Length, 0);
+                builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+            } while (m_socket.Available > 0);
+            SendMsg("Client received: " + builder.ToString());
         }
 
 
