@@ -18,12 +18,9 @@ namespace Sockets
             Thread serverTh = new Thread(new ThreadStart(server.Start));
             Thread clientTh = new Thread(new ThreadStart(client.Start));
 
-            //serverTh.Start();
-            //Thread.Sleep(2000);
-            //clientTh.Start();
-
-            string res = DateParser.Parse("climbers 03/06/2017 with");
-            Console.WriteLine(res);
+            serverTh.Start();
+            Thread.Sleep(2000);
+            clientTh.Start();
         }
     }
 }
