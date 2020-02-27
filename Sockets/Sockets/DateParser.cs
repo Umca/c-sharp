@@ -47,18 +47,22 @@ namespace Sockets
             int len = 0;
             StringBuilder strbuild = new StringBuilder();
             MatchCollection matches = reg.Matches(str);
-            foreach (Match m in matches)
+            if(matches.Count > 0)
             {
-                Console.WriteLine(m.Value);
-                Console.WriteLine(m.Index);
-                len = m.Index - startIdx;
-                string temp = str.Substring(startIdx, len);
-                strbuild.Append(temp);
-                string date = FormatDate(m);
-                strbuild.Append(date);
-                startIdx = m.Index + m.Length;
+                foreach (Match m in matches)
+                {
+                    len = m.Index - startIdx;
+                    string temp = str.Substring(startIdx, len);
+                    strbuild.Append(temp);
+                    string date = FormatDate(m);
+                    strbuild.Append(date);
+                    startIdx = m.Index + m.Length;
+                }
+
+                return strbuild.Append(str.Substring(startIdx)).ToString();
             }
-            return strbuild.ToString();
+            return str;
+            
         }
         static string FormatDate(Match m)
         {

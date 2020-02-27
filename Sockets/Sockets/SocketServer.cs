@@ -51,10 +51,9 @@ namespace Sockets
                 while (handler.Available > 0);
                 SendMsg("Server received new message.");
 
-                string msg = builder.ToString() + " server mark";
+                string msg = DateParser.Parse(builder.ToString());
                 data = Encoding.Unicode.GetBytes(msg);
                 handler.Send(data);
-                SendMsg("Server sent message. ");
             }
         }
         void SendMsg(string msg)
