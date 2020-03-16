@@ -24,23 +24,9 @@ namespace Sockets
             }
         }
 
-        static Regex reg = new Regex(@"\b(?<day>\d{1,4})(-|\/|.| )(?<month>(\d{1,2}|\w+))(-|\/|.| )(?<year>\d{1,4})\b", RegexOptions.IgnoreCase);
+        static Regex reg = new Regex(@"\b(?<day>\d{1,4})[-\/. ](?<month>(\d{1,2}|\w+))[-\/. ](?<year>\d{1,4})\b", RegexOptions.IgnoreCase);
         static ArrayList groupnames = new ArrayList() { "day", "month", "year" };
-        static Dictionary<String, ArrayList> monthes = new Dictionary<String, ArrayList>()
-        {
-            {"01", new ArrayList(){"January", "Jan" } },
-            {"02", new ArrayList(){"February", "Feb" } },
-            {"03", new ArrayList(){"March", "Mar" } },
-            {"04", new ArrayList(){"April", "Apr" } },
-            {"05", new ArrayList(){"May", "May" } },
-            {"06", new ArrayList(){"June", "Jun" } },
-            {"07", new ArrayList(){"July", "Jul" } },
-            {"08", new ArrayList(){"August", "Aug" } },
-            {"09", new ArrayList(){"September", "Sep" } },
-            {"10", new ArrayList(){"October", "Oct" } },
-            {"11", new ArrayList(){"November", "Nov" } },
-            {"12", new ArrayList(){"December", "Dec" } },
-        };
+        static List<String> _monthes = new List<string>{ "January" , "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
         public static string Parse(string str)
         {
             int startIdx = 0;
@@ -82,11 +68,11 @@ namespace Sockets
                         }
                         else
                         {
-                            foreach(var entry in monthes)
+                            for(int i = 0; i<_monthes.Count; i++)
                             {
-                                if (entry.Value.Contains(group.Value))
+                                if (_monthes[i].Contains(group.Value))
                                 {
-                                    d.month = entry.Key;
+                                    d.month = (i+1).ToString().PadLeft(2, '0');
                                 }
                             }
                         }
