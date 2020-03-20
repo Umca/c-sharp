@@ -5,19 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
-using System.Threading;
 using System.IO;
 
-namespace Sockets
+namespace Client
 {
-    class ClientServer
+    class Server
     {
-        
         int m_port;
         Socket m_socket;
         IPEndPoint m_ipPoint;
         string m_host;
-        public ClientServer(int port, string host)
+        public Server(int port, string host)
         {
             m_port = port;
             m_host = host;
@@ -32,11 +30,11 @@ namespace Sockets
                 SendMsg("Client launched.");
                 ReadFile();
             }
-            catch(SocketException err)
+            catch (SocketException err)
             {
                 Console.WriteLine(err);
             }
-            catch(IOException err)
+            catch (IOException err)
             {
                 Console.WriteLine(err);
             }
@@ -53,16 +51,17 @@ namespace Sockets
         void ReadFile()
         {
             const Int32 BufferSize = 1024;
-            using(var fileStream = File.OpenRead("data.txt"))
-                using (var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, BufferSize))
+            using (var fileStream = File.OpenRead("data.txt"))
+            using (var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, BufferSize))
+            {
+                String line;
+                while ((line = streamReader.ReadLine()) != null)
                 {
-                    String line;
-                    while((line = streamReader.ReadLine()) != null)
-                    {
-                        ReceiveSendSocket(line);
-                    }
-                    m_socket.Shutdown(SocketShutdown.Both);
-                    m_socket.Close();
+                    //Console.ReadLine();
+                    ReceiveSendSocket(line);
+                }
+                //m_socket.Shutdown(SocketShutdown.Both);
+                //m_socket.Close();
             }
         }
 
@@ -81,7 +80,5 @@ namespace Sockets
             } while (m_socket.Available > 0);
             SendMsg("Client received: " + builder.ToString());
         }
-
-
     }
 }

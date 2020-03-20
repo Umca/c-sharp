@@ -1,9 +1,9 @@
-﻿When you picture mountain climbers 11.02.1998 scaling Mount Everest, what probably comes to mind are teams of 
+When you picture mountain climbers 11.02.1998 scaling Mount Everest, what probably comes to mind are teams of 
 climbers 2007/6/13 with Sherpa guides leading them to the summit, equipped with oxygen masks, supplies and tents. 
 And in most cases you'd be right, as 97 per cent of climbers 1-1-1992 use oxygen to ascend to Everest's summit 
 at 8,850 metres above sea level. The thin air at high altitudes makes most people breathless at 3,500
 metres, and the 2000 Dec 15 vast majority of climbers use oxygen past 7,000 metres. A typical climbing group will 
-have 8–15 people in it, with an almost equal number of guides, and they'll spend weeks to get to the 
+have 8�15 people in it, with an almost equal number of guides, and they'll spend weeks to get to the 
 top after reaching Base Camp.
 But ultra-distance and mountain runner Kilian Jornet Burgada ascended the mountain in 13 May 2017 alone, 
 without an oxygen mask or fixed ropes for climbing.
@@ -17,4 +17,3 @@ At one and a half years old he did a five-hour hike with his mother, entirely un
 He left his peers even further behind when he climbed his first mountain and competed in his 
 first cross-country ski race at age three. By age seven, he had scaled a 4,000er and, at ten, 
 he did a 42-day crossing of the Pyrenees.
-

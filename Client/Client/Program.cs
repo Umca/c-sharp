@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 
-namespace Sockets
+namespace Client
 {
     class Program
     {
@@ -12,8 +12,9 @@ namespace Sockets
         {
             int port = 4000;
             string host = "127.0.0.1";
-            Server server = new Server(port, host);
-            server.Start();
+            Server client = new Server(port, host);
+            client.Start();
+
         }
     }
 }
