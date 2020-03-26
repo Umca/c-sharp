@@ -10,7 +10,7 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            int port = 4000;
+            int port = 13000;
             string host = "127.0.0.1";
             Server client = new Server(port, host);
             client.Start();

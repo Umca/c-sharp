@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Net.Sockets;
 using System.Net;
 using System.IO;
@@ -57,11 +57,12 @@ namespace Client
                 String line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    //Console.ReadLine();
+
+                    Thread.Sleep(500);
                     ReceiveSendSocket(line);
                 }
-                //m_socket.Shutdown(SocketShutdown.Both);
-                //m_socket.Close();
+                m_socket.Shutdown(SocketShutdown.Send);
+                m_socket.Close();
             }
         }
 
