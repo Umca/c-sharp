@@ -12,7 +12,8 @@ namespace Sockets
 {
     class Server
     {
-        int connections;
+        static object locker = new object();
+        static int connections;
         int m_port;
         Socket m_listenSocket;
         IPEndPoint m_ipPoint;
@@ -72,9 +73,12 @@ namespace Sockets
                             if (err.ErrorCode == 10053)
                             {
                                 Console.BackgroundColor = ConsoleColor.Red;
-                                sockets.Remove(client);
-                                connections--;
-                                Print("Disconnected! {0} - current amount of connections", connections);
+                                lock (locker)
+                                {
+                                    sockets.Remove(client);
+                                    connections--;
+                                    Print("Disconnected!" + connections + " - current amount of connections");
+                                }
                                 Console.ResetColor();
                             }
                             else Print(err.ToString());
