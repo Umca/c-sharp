@@ -17,6 +17,7 @@ namespace Sockets
         Socket m_listenSocket;
         IPEndPoint m_ipPoint;
         string m_host;
+        List<Socket> sockets;
         public Server(int port, string host)
         {
             m_port = port;
@@ -28,6 +29,8 @@ namespace Sockets
             m_listenSocket.Listen(10);
             Print("Server is listening...");
 
+            sockets = new List<Socket>();
+
             Run();
         }
         void Run()
@@ -38,13 +41,15 @@ namespace Sockets
                 while (true)
                 {
                     Socket handler = m_listenSocket.Accept();
+                    sockets.Add(handler);
                     connections++;
                     Console.BackgroundColor = ConsoleColor.Blue;
                     Print("Amount of connections " + connections);
                     Console.ResetColor();
 
-                    Thread th = new Thread(() =>
+                    Thread th = new Thread((object sock) =>
                     {
+                        Socket client = (Socket)sock;
                         try
                         {
                             while (true)
@@ -55,11 +60,11 @@ namespace Sockets
                                 do
                                 {
                                     byte[] buffer = new byte[1024];
-                                    bytes = handler.Receive(buffer);
+                                    bytes = client.Receive(buffer);
                                     builder.Append(Encoding.Unicode.GetString(buffer));
-                                } while (handler.Available > 0);
+                                } while (client.Available > 0);
                                 string msg = DateParser.Parse(builder.ToString());
-                                handler.Send(Encoding.Unicode.GetBytes(msg));
+                                client.Send(Encoding.Unicode.GetBytes(msg));
                             }
                         }
                         catch(SocketException err)
@@ -67,13 +72,15 @@ namespace Sockets
                             if (err.ErrorCode == 10053)
                             {
                                 Console.BackgroundColor = ConsoleColor.Red;
-                                Print("Disconnected!");
+                                sockets.Remove(client);
+                                connections--;
+                                Print("Disconnected! {0} - current amount of connections", connections);
                                 Console.ResetColor();
                             }
                             else Print(err.ToString());
                         }
                     });
-                    th.Start();
+                    th.Start(handler);
                 }
             }
             catch (Exception err)
