@@ -14,10 +14,11 @@ namespace Sockets
     {
         static object locker = new object();
         static int connections;
+        bool m_isRunning;
         int m_port;
+        string m_host;
         Socket m_listenSocket;
         IPEndPoint m_ipPoint;
-        string m_host;
         List<Socket> sockets;
         public Server(int port, string host)
         {
@@ -29,17 +30,53 @@ namespace Sockets
             m_listenSocket.Bind(m_ipPoint);
             m_listenSocket.Listen(10);
             Print("Server is listening...");
+            m_isRunning = true;
 
             sockets = new List<Socket>();
-
-            Run();
+            Thread th = new Thread(Run);
+            th.Start();
+            try
+            {
+                Console.WriteLine("Press Esc to shutdown the server.");
+                ConsoleKeyInfo cki;
+                do
+                {
+                    cki = Console.ReadKey();
+                    Console.WriteLine("Please, press Ecp instead of {0}.", cki.Key.ToString());
+                } while (cki.Key != ConsoleKey.Escape);
+                m_isRunning = false;
+                foreach (var sock in sockets)
+                {
+                    if (sock.Connected)
+                    {
+                        sock.Shutdown(SocketShutdown.Both);
+                        sock.Close();
+                    }
+                }
+                sockets.Clear();
+                m_listenSocket.Shutdown(SocketShutdown.Both);
+            }
+            catch(SocketException err)
+            {
+                if (err.ErrorCode == 10057) Console.WriteLine("Server is closed. {0}", err.ErrorCode);
+            }
+            catch(Exception err)
+            {
+                Console.WriteLine(err.ToString());
+            }
+            finally
+            {
+                
+                m_listenSocket.Close();
+                Console.ReadKey();
+            }
         }
         void Run()
         {
 
             try
             {
-                while (true)
+                while (m_isRunning)
                 {
                     Socket handler = m_listenSocket.Accept();
                     sockets.Add(handler);
@@ -55,29 +92,47 @@ namespace Sockets
                         {
                             while (true)
                             {
+
+                                if (!m_isRunning)
+                                {
+                                    client.Shutdown(SocketShutdown.Both);
+                                    client.Close();
+                                    client = null;
+                                    return;
+                                }
                                 Print("New incomming message.");
                                 StringBuilder builder = new StringBuilder();
                                 int bytes = 0;
                                 do
                                 {
+                                   
                                     byte[] buffer = new byte[1024];
-                                    bytes = client.Receive(buffer);
-                                    builder.Append(Encoding.Unicode.GetString(buffer));
+                                    if (client.Connected)
+                                    {
+                                        bytes = client.Receive(buffer);   // System.Net.Sockets.SocketException (0x80004005): Операция блокирования прервана вызовом WSACancelBlockingCall
+                                                                          // в System.Net.Sockets.Socket.Receive(Byte[] buffer, Int32 offset, Int32 size, SocketFlags socketFlags)
+                                                                          // я хоть и проверяю выше на то, что сервак работает, но все равно на эту строку жалуется
+                                                                          // я так понимаю , мы прошли проверку, дошли до ресив. а я уже в этот момент остановила сервер и поэтому ошибка
+                                                                          // я передвигала проверку ближе к ресив, но тогда есть шанс отвалится ниже на отправке. 
+                                                                          // а дублирование - вещь такая(
+                                                                          // может же быть такое, что прерывается коннекшн в этот момент?
+                                        builder.Append(Encoding.Unicode.GetString(buffer));
+                                    }
                                 } while (client.Available > 0);
                                 string msg = DateParser.Parse(builder.ToString());
-                                client.Send(Encoding.Unicode.GetBytes(msg));
+                                if(client.Connected) client.Send(Encoding.Unicode.GetBytes(msg));
                             }
                         }
                         catch(SocketException err)
                         {
-                            if (err.ErrorCode == 10053)
+                            if (err.ErrorCode == 10053) // client disconnected
                             {
                                 Console.BackgroundColor = ConsoleColor.Red;
                                 lock (locker)
                                 {
                                     sockets.Remove(client);
                                     connections--;
-                                    Print("Disconnected!" + connections + " - current amount of connections");
+                                    Print("Disconnected!" + connections + " - current amount of connections. " + err.ErrorCode);
                                 }
                                 Console.ResetColor();
                             }
@@ -86,6 +141,11 @@ namespace Sockets
                     });
                     th.Start(handler);
                 }
+            }
+            catch (SocketException err)
+            {
+                if (err.ErrorCode == 10004) return; //main socket is closed from other thread
+                Console.WriteLine(err.ToString());
             }
             catch (Exception err)
             {
